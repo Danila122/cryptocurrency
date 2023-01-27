@@ -9,6 +9,7 @@
               <input
                 v-model="ticker"
                 @keydown.enter="add"
+                @input="inputValidation"
                 type="text"
                 name="wallet"
                 id="wallet"
@@ -30,10 +31,13 @@
                 CHD
               </span>
             </div>
-            <div class="text-sm text-red-600">Такой тикер уже добавлен</div>
+            <div v-if="similar" class="text-sm text-red-600"
+            >Такой тикер уже добавлен
+          </div>
           </div>
         </div>
         <button
+          :disabled="similar"
           @:click="add"
           type="button"
           class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
@@ -149,17 +153,20 @@ export default {
       tickers: [],
       selected: null,
       graph: [],
+      similar: false,
     };
   },
 
-  methods:{
+  methods:
+  {
     add(){
+      
       const currentTicker = {
-        name: this.ticker, 
+        name: this.ticker.toUpperCase(), 
         price:'-',
         
       };
-
+      
       this.tickers.push(currentTicker)
       
       this.ticker=''
@@ -178,6 +185,13 @@ export default {
          
       },5000)
     },
+
+    inputValidation(){
+      this.tickers.filter((ticker)=>ticker.name.toLowerCase() === this.ticker.toLowerCase() 
+      ? this.similar = true 
+      : this.similar = false)
+    },
+
     remove(index){
       this.tickers.splice(index, 1)
     },
