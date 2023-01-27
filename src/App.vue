@@ -9,7 +9,6 @@
               <input
                 v-model="ticker"
                 @keydown.enter="add"
-                @input="inputValidation"
                 type="text"
                 name="wallet"
                 id="wallet"
@@ -18,17 +17,9 @@
               />
             </div>
             <div class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
-              <span class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-                BTC
-              </span>
-              <span class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-                DOGE
-              </span>
-              <span class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-                BCH
-              </span>
-              <span class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-                CHD
+              <span
+                >
+               
               </span>
             </div>
             <div v-if="similar" class="text-sm text-red-600"
@@ -154,11 +145,21 @@ export default {
       selected: null,
       graph: [],
       similar: false,
+      coinlist:[],
     };
   },
 
-  methods:
-  {
+  created(){
+  
+
+    const tickersData = localStorage.getItem('cryptocurrency');
+    if(tickersData){
+      this.tickers=JSON.parse(tickersData)
+      this.tickers.forEach(ticker => this.subscribeToUpdates(ticker.name));
+    }
+  },
+
+  methods:{
     add(){
       
       const currentTicker = {
@@ -166,19 +167,24 @@ export default {
         price:'-',
         
       };
-      
-      this.tickers.push(currentTicker)
-      
-      this.ticker=''
-      const that = this
 
+      this.tickers.push(currentTicker); 
+      // console.log(this.tickers);
+      localStorage.setItem('cryptocurrency',JSON.stringify(this.tickers))
+
+      this.ticker=''
+
+      this.subscribeToUpdates(currentTicker.name);
+    },
+
+    subscribeToUpdates(tickerName){
       setInterval(()=>{
-        fetch(`https://min-api.cryptocompare.com/data/price?fsym=${currentTicker.name}&tsyms=USD&&api_key=cd260eb77da9f20abed7a2265fc4daa7edf0cf088431dddac3394dedaa041020`)
+        fetch(`https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&&api_key=cd260eb77da9f20abed7a2265fc4daa7edf0cf088431dddac3394dedaa041020`)
           .then((data)=> data.json())
           .then((data)=> {
-            that.tickers.find((ticker)=> ticker.name === currentTicker.name).price = data.USD
+            this.tickers.find((ticker)=> ticker.name === tickerName).price = data.USD
 
-            if(currentTicker.name === this.selected?.name){
+            if(tickerName === this.selected?.name){
               this.graph.push(data.USD)
             }
         })
@@ -186,10 +192,12 @@ export default {
       },5000)
     },
 
+
     inputValidation(){
       this.tickers.filter((ticker)=>ticker.name.toLowerCase() === this.ticker.toLowerCase() 
       ? this.similar = true 
       : this.similar = false)
+
     },
 
     remove(index){
@@ -208,6 +216,8 @@ export default {
 
     }
   },
+
+
 
 
 }
