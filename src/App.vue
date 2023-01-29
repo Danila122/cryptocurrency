@@ -50,15 +50,19 @@
         </button>
       </section>
       <template v-if="tickers.length>0">
-        <hr class="w-full border-t border-gray-600 my-4"/>
+        <hr class="w-full border-t border-gray-600 my-4"/>  
           <button 
             class="my-4 mx-2 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            @click="page = page-1"
+            v-if="page>1"
             >Назад
           </button> 
           <button
-            class="my-4 mx-2 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >Вперед
-          </button>
+              class="my-4 mx-2 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              @click="page = page+1"
+              v-if="hasNextPage"
+              >Вперед
+          </button> 
           <div>Фильтр:<input v-model="filter"/> 
         </div>
         <hr class="w-full border-t border-gray-600 my-4" />
@@ -159,6 +163,8 @@ export default {
       graph: [],
       similar: false,
       filter:"",
+      page: 1,
+      hasNextPage: true,
     };
   },
 
@@ -174,13 +180,22 @@ export default {
   methods:{
 
     filterTickers(){
-      return this.tickers.filter((ticker)=> ticker.name.includes(this.filter.toUpperCase()))
+      
+      const start = (this.page-1) * 6;
+      const end = this.page * 6;
+
+
+      const filterTickets = this.tickers.filter((ticker)=> ticker.name.includes(this.filter.toUpperCase()))
+    
+      this.hasNextPage =  filterTickets.length > end
+     
+      return filterTickets.slice(start,end)
     },
 
     add(){
       
       if(this.ticker.trim() == '' || this.similar) return
-
+      this.filter = ""
 
       const currentTicker = {
         name: this.ticker.toUpperCase(), 
@@ -242,6 +257,12 @@ export default {
     }
   },
 
+
+  watch:{
+    filter(){
+      this.page = 1
+    }
+  }
 
 
 
