@@ -145,7 +145,6 @@ export default {
       selected: null,
       graph: [],
       similar: false,
-      coinlist:[],
     };
   },
 
@@ -160,8 +159,12 @@ export default {
   },
 
   methods:{
+
     add(){
-      
+
+      if(this.ticker.trim() == '') return
+    
+
       const currentTicker = {
         name: this.ticker.toUpperCase(), 
         price:'-',
@@ -169,7 +172,6 @@ export default {
       };
 
       this.tickers.push(currentTicker); 
-      // console.log(this.tickers);
       localStorage.setItem('cryptocurrency',JSON.stringify(this.tickers))
 
       this.ticker=''
@@ -194,10 +196,13 @@ export default {
 
 
     inputValidation(){
-      this.tickers.filter((ticker)=>ticker.name.toLowerCase() === this.ticker.toLowerCase() 
-      ? this.similar = true 
-      : this.similar = false)
 
+      this.tickers.filter((ticker)=>{
+        console.log(ticker.name.toLowerCase(),this.ticker.toLowerCase());
+        ticker.name.toLowerCase() === this.ticker.toLowerCase() 
+      // ? this.similar = true 
+      // : this.similar = false
+      })
     },
 
     remove(index){
