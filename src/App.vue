@@ -68,7 +68,7 @@
         <hr class="w-full border-t border-gray-600 my-4" />
         <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div
-            v-for="(item, idx) in filterTickers()"
+            v-for="(item, idx) in paginatedTickers"
             :key="idx"
             @click="select(item)"
             :class="{
@@ -112,7 +112,7 @@
         </h3>
         <div class="flex items-end border-gray-600 border-b border-l h-64">
           <div
-            v-for="(bar, idx) in normalizeGraph()"
+            v-for="(bar, idx) in normalizedGraph"
             :key="idx"
             :style="{height: `${bar}%`}"
             class="bg-purple-800 border w-10"
@@ -157,16 +157,20 @@ export default {
   name: 'App',
   data(){
     return {
-      ticker: '',
+      filter:"",
+      ticker: "",
+
       tickers: [],
       selected: null,
+
       graph: [],
+ 
       similar: false,
-      filter:"",
+      
       page: 1,
-      hasNextPage: true,
     };
   },
+
 
   created(){
 
@@ -177,21 +181,45 @@ export default {
     }
   },
 
-  methods:{
-
-    filterTickers(){
-      
-      const start = (this.page-1) * 6;
-      const end = this.page * 6;
-
-
-      const filterTickets = this.tickers.filter((ticker)=> ticker.name.includes(this.filter.toUpperCase()))
-    
-      this.hasNextPage =  filterTickets.length > end
-     
-      return filterTickets.slice(start,end)
+  computed:{
+    startIndex(){
+      return (this.page-1) * 6;
     },
 
+    endIndex(){
+      return this.page * 6;
+    },
+
+    filteredTickers(){
+      
+      return this.tickers.filter((ticker)=> ticker.name.includes(this.filter.toUpperCase()))
+    
+  
+    },
+
+    paginatedTickers(){
+      return this.filteredTickers.slice(this.startIndex, this.endIndex);
+    },
+
+    hasNextPage(){
+      return this.filteredTickers.length > this.endIndex;
+    },
+
+    normalizedGraph(){
+      const maxValue = Math.max(...this.graph);
+      const minValue = Math.min(...this.graph);
+
+      if(maxValue === minValue){
+        return this.graph.map(()=> 50) 
+      }
+
+      return this.graph.map((price)=> 5 + ((price-minValue) * 95) / (maxValue - minValue))
+    },
+
+  },
+
+
+  methods:{
     add(){
       
       if(this.ticker.trim() == '' || this.similar) return
@@ -204,7 +232,6 @@ export default {
       };
 
       this.tickers.push(currentTicker); 
-      localStorage.setItem('cryptocurrency',JSON.stringify(this.tickers))
 
       this.ticker=''
 
@@ -246,25 +273,28 @@ export default {
 
     select(ticker){
       this.selected = ticker;
-      this.graph = [];
+      
     },
-    normalizeGraph(){
-      const maxValue = Math.max(...this.graph);
-      const minValue = Math.min(...this.graph);
-
-      return this.graph.map((price)=> 5 + ((price-minValue) * 95) / (maxValue - minValue))
-
-    }
+   
   },
 
-
   watch:{
+   
+
+    paginatedTickers(){
+      if(this.paginatedTickers.length === 0 &&  this.page>1){
+        this.page -= 1
+      }
+    },
+    
+    selected(){
+      this.graph = [];
+    },
+
     filter(){
       this.page = 1
-    }
+    },
   }
-
-
 
 }
 </script>
