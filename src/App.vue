@@ -8,6 +8,7 @@
             <div class="mt-1 relative rounded-md shadow-md">
               <input
                 v-model="ticker"
+                @input="inputValidation"
                 @keydown.enter="add"
                 type="text"
                 name="wallet"
@@ -22,13 +23,14 @@
                
               </span>
             </div>
-            <div v-if="similar" class="text-sm text-red-600"
+            <div 
+              v-if="similar" 
+              class="text-sm text-red-600"
             >Такой тикер уже добавлен
           </div>
           </div>
         </div>
         <button
-          :disabled="similar"
           @:click="add"
           type="button"
           class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
@@ -161,9 +163,10 @@ export default {
   methods:{
 
     add(){
+      // this.inputValidation()
+      
+      if(this.ticker.trim() == '' || this.similar) return
 
-      if(this.ticker.trim() == '') return
-    
 
       const currentTicker = {
         name: this.ticker.toUpperCase(), 
@@ -196,13 +199,16 @@ export default {
 
 
     inputValidation(){
+      for (let i = 0; i < this.tickers.length; i++) {
+        const ticker = this.tickers[i];
+        if(ticker.name.toLowerCase() === this.ticker.toLowerCase()){
+          
+          this.similar = true
+          return
+        }
 
-      this.tickers.filter((ticker)=>{
-        console.log(ticker.name.toLowerCase(),this.ticker.toLowerCase());
-        ticker.name.toLowerCase() === this.ticker.toLowerCase() 
-      // ? this.similar = true 
-      // : this.similar = false
-      })
+        this.similar = false        
+      }
     },
 
     remove(index){
