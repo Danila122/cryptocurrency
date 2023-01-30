@@ -110,12 +110,15 @@
         <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
           {{ selected.name }} - USD
         </h3>
-        <div class="flex items-end border-gray-600 border-b border-l h-64">
+        <div 
+          class="flex items-end border-gray-600 border-b border-l h-64"
+          ref="graph"
+          >
           <div
             v-for="(bar, idx) in normalizedGraph"
             :key="idx"
-            :style="{height: `${bar}%`}"
-            class="bg-purple-800 border w-10"
+            :style="{height: `${bar}%`, width:`${barWidth}px`}"
+            class="bg-purple-800 border"
           ></div>
          
         </div>
@@ -170,17 +173,28 @@ export default {
       similar: false,
       
       page: 1,
+      maxGraphElements:1,
+      barWidth:40,
     };
   },
 
 
   created(){
-
     const tickersData = localStorage.getItem('cryptocurrency');
     if(tickersData){
       this.tickers=JSON.parse(tickersData)
       this.tickers.forEach(ticker => this.subscribeToUpdates(ticker.name));
     }
+  },
+
+  mounted(){
+    
+    window.addEventListener("resize", this.calculateMaxGraphElements); 
+    
+  },
+
+  beforeUnmount(){
+    window.removeEventListener("resize", this.calculateMaxGraphElements);
   },
 
   computed:{
@@ -193,10 +207,7 @@ export default {
     },
 
     filteredTickers(){
-      
       return this.tickers.filter((ticker)=> ticker.name.includes(this.filter.toUpperCase()))
-    
-  
     },
 
     paginatedTickers(){
@@ -222,8 +233,16 @@ export default {
 
 
   methods:{
+
+    calculateMaxGraphElements(){
+      if(!this.$refs.graph){
+        return;
+      } 
+      this.maxGraphElements = this.$refs.graph.clientWidth / this.barWidth;
+    },
+
+
     add(){
-      
       if(this.ticker.trim() == '' || this.similar) return
       this.filter = ""
 
@@ -234,7 +253,7 @@ export default {
       };
 
       this.tickers.push(currentTicker); 
-
+      localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
       this.ticker=''
 
       this.subscribeToUpdates(currentTicker.name);
@@ -250,6 +269,10 @@ export default {
 
         if(tickerName === this.selected?.name){
           this.graph.push(data.USD)
+
+          if(this.graph.length > this.maxGraphElements){
+            this.graph.shift()
+          }
         }
          
       },5000)
@@ -275,7 +298,7 @@ export default {
 
     select(ticker){
       this.selected = ticker;
-      
+      this.$nextTick().then(this.calculateMaxGraphElements)
     },
    
   },
