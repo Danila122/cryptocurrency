@@ -1,7 +1,8 @@
 <template>
   <div class="container mx-auto flex flex-col items-center bg-gray-100 p-4">
     <div class="container">
-      <section>
+      
+      <!-- <section>
         <div class="flex">
           <div class="max-w-xs">
             <label for="wallet" class="block text-sm font-medium text-gray-700">Тикер{{ticker}}</label>
@@ -18,9 +19,7 @@
               />
             </div>
             <div class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
-              <span
-                >
-               
+              <span>
               </span>
             </div>
             <div 
@@ -48,7 +47,10 @@
           </svg>
           Добавить
         </button>
-      </section>
+      </section> -->
+      <add-ticker
+        :tickers="tickers"
+      />
       <template v-if="tickers.length>0">
         <hr class="w-full border-t border-gray-600 my-4"/>  
           <button 
@@ -132,16 +134,18 @@
 <script>
 
 import {loadTicker} from './api' ;
+import AddTicker from './components/AddTicker.vue';
 import SingleTicker from './components/SingleTicker.vue'
 
 export default {
   name: 'App',
 
   components:{
+    AddTicker,
     SingleTicker,
 
-  },
 
+  },
   data(){
     return {
       filter:"",
@@ -152,7 +156,7 @@ export default {
 
       graph: [],
  
-      similar: false,
+      
       
       page: 1,
       maxGraphElements:1,
@@ -224,22 +228,7 @@ export default {
     },
 
 
-    add(){
-      if(this.ticker.trim() == '' || this.similar) return
-      this.filter = ""
-
-      const currentTicker = {
-        name: this.ticker.toUpperCase(), 
-        price:'-',
-        
-      };
-
-      this.tickers.push(currentTicker); 
-      localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
-      this.ticker=''
-
-      this.subscribeToUpdates(currentTicker.name);
-    },
+    
 
     subscribeToUpdates(tickerName){
       setInterval(async ()=>{
@@ -261,18 +250,6 @@ export default {
     },
 
 
-    inputValidation(){
-      for (let i = 0; i < this.tickers.length; i++) {
-        const ticker = this.tickers[i];
-        if(ticker.name.toLowerCase() === this.ticker.toLowerCase()){
-          
-          this.similar = true
-          return
-        }
-
-        this.similar = false        
-      }
-    },
 
     select(ticker){
       this.selected = ticker;
