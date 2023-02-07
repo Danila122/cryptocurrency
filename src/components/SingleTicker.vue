@@ -32,6 +32,8 @@
 
 <script>
 
+import {unsubscribeFromTicker} from '../api.js'
+
 export default {
   name: 'SingleTicker',
 
@@ -58,7 +60,10 @@ export default {
 
   methods:{
     remove(index){
+      const tickerToRemove = this.tickersArray[index] 
       this.tickersArray.splice(index, 1)
+
+      unsubscribeFromTicker(tickerToRemove.name)
     },
   }
 }

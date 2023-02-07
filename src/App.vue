@@ -86,7 +86,7 @@
 
 <script>
 
-import {loadTicker} from './api' ;
+import {subscribeToTicker} from './api' ;
 import AddTicker from './components/AddTicker.vue';
 import SingleTicker from './components/SingleTicker.vue'
 
@@ -121,7 +121,10 @@ export default {
     const tickersData = localStorage.getItem('cryptocurrency');
     if(tickersData){
       this.tickers=JSON.parse(tickersData)
-      this.tickers.forEach(ticker => this.subscribeToUpdates(ticker.name));
+      this.tickers.forEach(ticker => {
+        subscribeToTicker(ticker.name, (newPrice)=> this.updateTicker(ticker.name, newPrice));
+      });
+      // this.tickers.forEach(ticker => this.subscribeToUpdates(ticker.name));
     }
   },
 
@@ -136,6 +139,8 @@ export default {
   },
 
   computed:{
+   
+
     startIndex(){
       return (this.page-1) * 6;
     },
@@ -171,6 +176,16 @@ export default {
 
 
   methods:{
+    updateTicker(tickerName, price){
+      this.tickers.
+        filter(t => t.name === tickerName)
+        .forEach(t => {
+          if(t === this.selected){
+            this.graph.push(price);
+          }
+          t.price = price
+        })
+     },
 
     add(ticker){
       if(ticker.trim() == '' || this.similar) return
@@ -182,10 +197,13 @@ export default {
       };
 
       this.tickers.push(currentTicker); 
-      localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
       this.ticker=''
 
-      this.subscribeToUpdates(currentTicker.name);
+      localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
+
+      subscribeToTicker(currentTicker.name, (newPrice)=> this.updateTicker(currentTicker.name, newPrice));
+
+      // this.subscribeToUpdates(currentTicker.name);
     },
 
     calculateMaxGraphElements(){
@@ -198,21 +216,24 @@ export default {
 
     
 
-    subscribeToUpdates(tickerName){
+    subscribeToUpdates(){
       setInterval(async ()=>{
 
            
-        const data = await loadTicker(tickerName)
+        // const exchangeData = await loadTicker(tickerName)
         
-        this.tickers.find((ticker)=> ticker.name === tickerName).price = data.USD
+        // this.tickers.find((ticker)=> ticker.name === tickerName).price = 
+        //   exchangeData.USD > 1
+        //     ? exchangeData.USD.toFixed(2)
+        //     : exchangeData.USD.toPrecision(2);
 
-        if(tickerName === this.selected?.name){
-          this.graph.push(data.USD)
+        // if(tickerName === this.selected?.name){
+        //   this.graph.push(exchangeData.USD)
 
-          if(this.graph.length > this.maxGraphElements){
-            this.graph.shift()
-          }
-        }
+        //   if(this.graph.length > this.maxGraphElements){
+        //     this.graph.shift()
+        //   }
+        // }
          
       },5000)
     },
