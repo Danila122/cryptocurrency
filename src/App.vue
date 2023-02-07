@@ -2,7 +2,10 @@
   <div class="container mx-auto flex flex-col items-center bg-gray-100 p-4">
     <div class="container">
       <add-ticker
+        :disabled="tickerExist"
+        :ticker-exist="tickerExist"
         @add-ticker="add"
+        @input-value="inputValidation"
       />
       <template v-if="tickers.length>0">
         <hr class="w-full border-t border-gray-600 my-4"/>  
@@ -103,10 +106,9 @@ export default {
   data(){
     return {
       filter:"",
-
       tickers: [],
       selected: null,
-
+      tickerExist: false,
       graph: [],
       page: 1,
       maxGraphElements:1,
@@ -136,7 +138,7 @@ export default {
   },
 
   computed:{
-   
+    
 
     startIndex(){
       return (this.page-1) * 6;
@@ -183,10 +185,11 @@ export default {
           }
           t.price = price
         })
-      },
+    },
 
     add(ticker){
-      if(ticker.trim() == '') return
+      if(ticker.trim() == '' || this.tickerExist) return
+
       this.filter = ""
 
       const currentTicker = {
@@ -195,7 +198,6 @@ export default {
       };
 
       this.tickers.push(currentTicker); 
-      this.ticker=''
 
       localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
 
@@ -214,32 +216,18 @@ export default {
       this.maxGraphElements = this.$refs.graph.clientWidth / this.barWidth;
     },
 
+    inputValidation(currentTicker){
+      for (let i = 0; i < this.tickers.length; i++) {
+        const ticker = this.tickers[i];
 
-    
+        if(ticker.name.toLowerCase() === currentTicker.toLowerCase()){
+          this.tickerExist = true
+          return
+        }
 
-    subscribeToUpdates(){
-      setInterval(async ()=>{
-
-           
-        // const exchangeData = await loadTicker(tickerName)
-        
-        // this.tickers.find((ticker)=> ticker.name === tickerName).price = 
-        //   exchangeData.USD > 1
-        //     ? exchangeData.USD.toFixed(2)
-        //     : exchangeData.USD.toPrecision(2);
-
-        // if(tickerName === this.selected?.name){
-        //   this.graph.push(exchangeData.USD)
-
-        //   if(this.graph.length > this.maxGraphElements){
-        //     this.graph.shift()
-        //   }
-        // }
-         
-      },5000)
+        this.tickerExist = false        
+      }
     },
-
-
 
     select(ticker){
       this.selected = ticker;

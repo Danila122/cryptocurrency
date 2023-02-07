@@ -1,5 +1,10 @@
 <template>
-  <button>
+  <button 
+    :disabled="disabled"
+    :class="{
+      'opacity-50':disabled
+    }"  
+  >
   <svg
       class="-ml-0.5 mr-2 h-6 w-6"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,6 +23,14 @@
 
 <script>
   export default {
+    props:{
+      disabled:{
+        type: Boolean,
+        require: false,
+        default: false
+      }
+    },
+
     data(){
       return{
         
