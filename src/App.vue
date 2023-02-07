@@ -28,6 +28,7 @@
             :item = 'item'
             :idx="idx"
             :tickers="tickers"
+            @remove-ticker="remove"
             @click="select(item)"
             :class="{
               'border-4': selected === item
@@ -86,7 +87,7 @@
 
 <script>
 
-import {subscribeToTicker} from './api' ;
+import {subscribeToTicker, unsubscribeFromTicker} from './api' ;
 import AddTicker from './components/AddTicker.vue';
 import SingleTicker from './components/SingleTicker.vue'
 
@@ -107,9 +108,6 @@ export default {
       selected: null,
 
       graph: [],
- 
-      
-      
       page: 1,
       maxGraphElements:1,
       barWidth:40,
@@ -124,7 +122,6 @@ export default {
       this.tickers.forEach(ticker => {
         subscribeToTicker(ticker.name, (newPrice)=> this.updateTicker(ticker.name, newPrice));
       });
-      // this.tickers.forEach(ticker => this.subscribeToUpdates(ticker.name));
     }
   },
 
@@ -180,15 +177,16 @@ export default {
       this.tickers.
         filter(t => t.name === tickerName)
         .forEach(t => {
+          
           if(t === this.selected){
             this.graph.push(price);
           }
           t.price = price
         })
-     },
+      },
 
     add(ticker){
-      if(ticker.trim() == '' || this.similar) return
+      if(ticker.trim() == '') return
       this.filter = ""
 
       const currentTicker = {
@@ -202,8 +200,11 @@ export default {
       localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
 
       subscribeToTicker(currentTicker.name, (newPrice)=> this.updateTicker(currentTicker.name, newPrice));
+    },
 
-      // this.subscribeToUpdates(currentTicker.name);
+    remove(tickerToRemove){
+      unsubscribeFromTicker(tickerToRemove.name)
+      localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
     },
 
     calculateMaxGraphElements(){
