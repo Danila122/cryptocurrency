@@ -7,7 +7,6 @@
           <input
             v-model="ticker"
             @keydown.enter="add"
-            @input="inputValidation"
             type="text"
             name="wallet"
             id="wallet"
@@ -30,7 +29,8 @@
       @:click="add"
       type="button"
       class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-    >          <svg
+    >
+    <svg
         class="-ml-0.5 mr-2 h-6 w-6"
         xmlns="http://www.w3.org/2000/svg"
         width="30"
@@ -51,9 +51,6 @@
 
 
   export default {
-    props:{
-      tickers:{type: Array, require: true}
-    },
 
     data(){
       return{
@@ -65,35 +62,23 @@
 
     methods:{
       add(){
-        if(this.ticker.trim() == '' || this.similar) return
-        this.filter = ""
-
-        const currentTicker = {
-          name: this.ticker.toUpperCase(), 
-          price:'-',
-          
-        };
-
-        this.tickersArray.push(currentTicker); 
-        localStorage.setItem('cryptocurrency', JSON.stringify(this.tickersArray));
-        this.ticker=''
-
-        // this.subscribeToUpdates(currentTicker.name);
+        this.$emit('add-ticker', this.ticker)
+        this.ticker='';
       },
 
-      inputValidation(){
-        for (let i = 0; i < this.tickersArray.length; i++) {
-          const ticker = this.tickersArray[i];
-          console.log(ticker.name.toLowerCase() === this.ticker.toLowerCase());
-          if(ticker.name.toLowerCase() === this.ticker.toLowerCase()){
+      // inputValidation(){
+      //   for (let i = 0; i < this.tickersArray.length; i++) {
+      //     const ticker = this.tickersArray[i];
+      //     console.log(ticker.name.toLowerCase() === this.ticker.toLowerCase());
+      //     if(ticker.name.toLowerCase() === this.ticker.toLowerCase()){
 
-            this.similar = true
-            return
-          }
+      //       this.similar = true
+      //       return
+      //     }
 
-          this.similar = false        
-        }
-      },
+      //     this.similar = false        
+      //   }
+      // },
     }
   }
 
