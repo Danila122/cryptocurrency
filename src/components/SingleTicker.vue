@@ -1,6 +1,9 @@
 <template>
-  <div class="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer">
-    <div class="px-4 py-5 sm:p-6 text-center">
+  <div class="overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer">
+    <div 
+      class="bg-white px-4 py-5 sm:p-6 text-center"
+      :class="{'bg-red-200': !item.isActive}"
+      >
       <dt class="text-sm font-medium text-gray-500 truncate">
         {{ item.name }} - USD
         

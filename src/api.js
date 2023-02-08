@@ -8,18 +8,25 @@ const AGGREGATE_INDEX = '5';
 
 socket.addEventListener('message', (e)=> {
 
-  const {TYPE: type, FROMSYMBOL: currency, PRICE: newPrice} = JSON.parse(e.data);
+  const {TYPE: type, MESSAGE: message, PARAMETER: parameter,FROMSYMBOL: currency, PRICE: newPrice} = JSON.parse(e.data);
   
+  if(message==='INVALID_SUB'){
+    const currency = parameter.split('~')[2];
+    updateTickerPrice(currency, newPrice)
+  }
+
   if(type !== AGGREGATE_INDEX || newPrice === undefined) {
     return;
   }
 
-
-  const handlers = tickersHandlers.get(currency) ?? [];
-  handlers.forEach(fn => fn(newPrice));
-  
+  updateTickerPrice(currency, newPrice)
 })
 
+
+function updateTickerPrice(currency, newPrice){
+  const handlers = tickersHandlers.get(currency) ?? [];
+  handlers.forEach(fn => fn(newPrice)); 
+}
 
 
 function sendToWebSocket(message){
@@ -52,6 +59,7 @@ function unsubscribeFromTickerOnWs(ticker){
 
 
 export const subscribeToTicker = (ticker, cb) =>{
+  
   const subscribers = tickersHandlers.get(ticker) || [];
   tickersHandlers.set(ticker, [...subscribers,cb]);
   subscribeToTickerOnWs(ticker);

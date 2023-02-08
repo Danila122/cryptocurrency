@@ -176,13 +176,17 @@ export default {
 
   methods:{
     updateTicker(tickerName, price){
-      this.tickers.
-        filter(t => t.name === tickerName)
-        .forEach(t => {
+
+      if(price === undefined){
+        this.tickers.forEach(t=> t.name === tickerName? t.isActive=false : null)
+        return;
+      }
+    
+      const filteredTickers = this.tickers.filter(t =>t.name === tickerName)
+      
+      filteredTickers.forEach(t => {
+          if(t === this.selected) this.graph.push(price);
           
-          if(t === this.selected){
-            this.graph.push(price);
-          }
           t.price = price
         })
     },
@@ -195,6 +199,7 @@ export default {
       const currentTicker = {
         name: ticker.toUpperCase(), 
         price:'-',
+        isActive: true,
       };
 
       this.tickers.push(currentTicker); 
@@ -230,6 +235,7 @@ export default {
     },
 
     select(ticker){
+      if(!ticker.isActive) return;
       this.selected = ticker;
       this.$nextTick().then(this.calculateMaxGraphElements)
     },
