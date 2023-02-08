@@ -54,7 +54,6 @@
             :style="{height: `${bar}%`, width:`${barWidth}px`}"
             class="bg-purple-800 border"
           ></div>
-         
         </div>
         <button
           @click="selected=null"
@@ -138,7 +137,6 @@ export default {
   },
 
   computed:{
-    
 
     startIndex(){
       return (this.page-1) * 6;
@@ -185,7 +183,13 @@ export default {
       const filteredTickers = this.tickers.filter(t =>t.name === tickerName)
       
       filteredTickers.forEach(t => {
-          if(t === this.selected) this.graph.push(price);
+          if(t === this.selected){
+            this.graph.push(price);
+
+            if(this.graph.length > this.maxGraphElements){
+              this.graph.splice(0,this.graph.length-this.maxGraphElements);
+            }
+          } 
           
           t.price = price
         })
