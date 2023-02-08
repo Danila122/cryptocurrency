@@ -57,7 +57,7 @@
          
         </div>
         <button
-        @click="selected=null"
+          @click="selected=null"
           type="button"
           class="absolute top-0 right-0"
         >
@@ -210,6 +210,7 @@ export default {
     },
 
     remove(tickerToRemove){
+      this.selected=null
       unsubscribeFromTicker(tickerToRemove.name)
       localStorage.setItem('cryptocurrency', JSON.stringify(this.tickers));
     },
