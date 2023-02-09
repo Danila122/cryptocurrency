@@ -21,7 +21,7 @@
               v-if="hasNextPage"
               >Вперед
           </button> 
-          <div>Фильтр:<input v-model="filter" class="p-1"/> 
+          <div>Фильтр:<input v-model="filter" class="p-1 ml-3"/> 
         </div>
         <hr class="w-full border-t border-gray-600 my-4" />
         <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
